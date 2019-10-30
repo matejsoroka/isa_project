@@ -3,20 +3,17 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/socket.h>
-#include <sys/types.h>
 #include <unistd.h>
 #include <cstdio>
-#include <ctime>
-#include <iostream>
-#include <iomanip>
 #include "Request.h"
 #include "Handler.h"
+#include "Dashboard.h"
 
 #define MAX 8192
-#define PORT 8085
+#define PORT 8082
 
 void
-func(int sockfd)
+func(int sockfd, Dashboard *dashboard)
 {
     char buff[MAX];
     int n;
@@ -28,7 +25,7 @@ func(int sockfd)
 
     Request req(buff);
     Response res = Response();
-    Handler h(&req, &res);
+    Handler h(&req, &res, dashboard);
 
     // and send that buffer to client
     strcpy(buff, res.raw.c_str());
@@ -65,6 +62,8 @@ main(int argc, char** argv)
     else
         printf("Socket successfully binded..\n");
 
+    Dashboard dashboard;
+
     while(true)
     {
         // Now server is ready to listen and verification
@@ -87,7 +86,7 @@ main(int argc, char** argv)
         }
 
         // Function for chatting between client and server
-        func(c_fd);
+        func(c_fd, &dashboard);
     }
 
     close(s_fd);

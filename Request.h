@@ -9,11 +9,12 @@
 #include <string>
 
 class Request {
-    std::string metod;
-    std::string url;
     std::string payload;
 public:
     explicit Request(const std::string& raw_request);
+
+    std::string url;
+    std::string metod;
 };
 
 
