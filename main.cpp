@@ -10,7 +10,7 @@
 #include "Dashboard.h"
 
 #define MAX 8192
-#define PORT 8082
+#define PORT 8087
 
 void
 func(int sockfd, Dashboard *dashboard)

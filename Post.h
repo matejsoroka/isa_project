@@ -10,7 +10,7 @@
 
 class Post {
 public:
-    int id;
+    Post(std::string message);
     std::string message;
 };
 

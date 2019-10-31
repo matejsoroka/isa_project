@@ -15,7 +15,6 @@ public:
     std::string date;
     std::string raw;
     static std::string generate_date();
-
     std::string generate_response();
 };
 

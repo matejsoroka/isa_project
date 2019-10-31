@@ -19,5 +19,6 @@ Request::Request(const std::string& raw_request)
     this->metod = results[0];
     // TODO: if method not in list of urls
     this->url = results[1];
+    this->payload = raw_request.substr(raw_request.find("\r\n\r\n") + 4);
 }
 

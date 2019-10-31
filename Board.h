@@ -14,7 +14,7 @@ public:
     Board(std::string board_name);
 
     std::string board_name;
-    std::vector<Post> posts;
+    std::vector<Post *> posts;
 };
 
 #endif //ISA_PROJECT_BOARD_H
