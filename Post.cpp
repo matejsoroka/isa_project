@@ -1,5 +1,5 @@
 //
-// Created by matthew on 30.10.19.
+// Created by Matej Soroka on 30.10.19.
 //
 
 #include "Post.h"

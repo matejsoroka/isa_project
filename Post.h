@@ -1,5 +1,5 @@
 //
-// Created by matthew on 30.10.19.
+// Created by Matej Soroka on 30.10.19.
 //
 
 #ifndef ISA_PROJECT_POST_H
@@ -10,7 +10,7 @@
 
 class Post {
 public:
-    Post(std::string message);
+    explicit Post(std::string message);
     std::string message;
 };
 

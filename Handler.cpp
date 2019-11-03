@@ -1,5 +1,5 @@
 //
-// Created by matthew on 28.10.19.
+// Created by Matej Soroka on 28.10.19.
 //
 
 #include <regex>
@@ -21,34 +21,44 @@ int Handler::get_requests()
     }
     r.assign("\\/(board)\\/([a-zA-Z0-9]*)");
     if (regex_match(this->request->url, r)) {
-        return this->dashboard->get_board(this->response, this->request->url.substr(7, this->request->url.find("\\/")));
+        return this->dashboard->get_board(this->response,
+                this->request->url.substr(7, this->request->url.find("\\/")));
     }
-    return 1;
+    this->response->code = 404;
+    this->response->payload = "Unknown GET request";
+    return 404;
 }
 
 int Handler::post_requests()
 {
     std::regex r("\\/(boards)\\/([a-zA-Z0-9]*)");
     if (regex_match(this->request->url, r)) {
-        return this->dashboard->create_board(this->response, this->request->url.substr(8, this->request->url.find("\\/")));
+        return this->dashboard->create_board(this->response,
+                this->request->url.substr(8, this->request->url.find("\\/")));
     }
     r.assign("\\/(board)\\/([a-zA-Z0-9]*)");
     if (regex_match(this->request->url, r)) {
         std::string board_name = this->request->url.substr(7, this->request->url.find("\\/"));
         return this->dashboard->add_to_board(this->response, board_name, this->request->payload);
     }
+    this->response->code = 404;
+    this->response->payload = "Unknown POST request";
+    return 404;
 }
 
 int Handler::put_requests()
 {
     std::regex r(R"(\/(board)\/([a-zA-Z0-9]*)\/([0-9])*)");
     if (regex_match(this->request->url, r)) {
-        int id = 1;
-        std::string board_name = "foo";
-        std::string message = "this is edited message";
-        return this->dashboard->edit_post(this->response, board_name, id, message);
+        std::string board_name = this->request->url.substr(7, this->request->url.find("\\/"));
+        int ix = board_name.find('/');
+        unsigned long id = stoi(board_name.substr(ix + 1, board_name.find("\\/")));
+        board_name = board_name.substr(0, ix);
+        return this->dashboard->edit_post(this->response, board_name, id, this->request->payload);
     } else {
-        return 2;
+        this->response->code = 404;
+        this->response->payload = "Unknown PUT request";
+        return 404;
     }
 }
 
@@ -56,28 +66,35 @@ int Handler::delete_requests()
 {
     std::regex r("\\/(boards)\\/([a-zA-Z0-9]*)");
     if (regex_match(this->request->url, r)) {
-        return this->dashboard->delete_board(this->response, this->request->url.substr(8, this->request->url.find("\\/")));
+        return this->dashboard->delete_board(this->response,
+                this->request->url.substr(8, this->request->url.find("\\/")));
     }
     r.assign(R"((\/(board)\/([a-zA-Z0-9]*)\/([0-9])*))");
     if (regex_match(this->request->url, r)) {
-        std::string board_name = "foo";
-        int id = 1;
+        std::string board_name = this->request->url.substr(7, this->request->url.find("\\/"));
+        int ix = board_name.find('/');
+        unsigned long id = stoi(board_name.substr(ix + 1, board_name.find("\\/")));
+        board_name = board_name.substr(0, ix);
         return this->dashboard->delete_post(this->response, board_name, id);
     }
-    return 2;
+    this->response->code = 404;
+    this->response->payload = "Unknown DELETE request";
+    return 404;
 }
 
 int Handler::handle_request() {
-    if (this->request->metod == "GET") {
+    if (this->request->method == "GET") {
         return this->get_requests();
-    } else if (this->request->metod == "POST") {
+    } else if (this->request->method == "POST") {
         return this->post_requests();
-    } else if ((this->request->metod == "PUT")) {
+    } else if ((this->request->method == "PUT")) {
         return this->put_requests();
-    } else if (this->request->metod == "DELETE") {
+    } else if (this->request->method == "DELETE") {
         return this->delete_requests();
     } else {
-        return 1;
+        this->response->code = 404;
+        this->response->payload = "Unknown HTTP request method";
+        return 404;
     }
 }
 

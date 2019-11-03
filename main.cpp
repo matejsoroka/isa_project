@@ -1,22 +1,20 @@
-#include <netdb.h>
 #include <netinet/in.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/socket.h>
 #include <unistd.h>
 #include <cstdio>
+#include <iostream>
 #include "Request.h"
 #include "Handler.h"
 #include "Dashboard.h"
 
 #define MAX 8192
-#define PORT 8087
 
 void
 func(int sockfd, Dashboard *dashboard)
 {
     char buff[MAX];
-    int n;
     bzero(buff, MAX);
 
     // read the message from client and copy it in buffer
@@ -35,6 +33,18 @@ func(int sockfd, Dashboard *dashboard)
 int
 main(int argc, char** argv)
 {
+    double port = 0;
+    if (argc == 3 && !strcmp(argv[1], "-p")) {
+        port = strtod(argv[2], nullptr);
+        if (port == 0) {
+            std::cerr << "Port is not a number" << std::endl;
+            return 10;
+        }
+    } else {
+        std::cerr << "Please set up port correctly" << std::endl;
+        return 10;
+    }
+
     int s_fd, c_fd, len;
     struct sockaddr_in servaddr, cli;
 
@@ -52,7 +62,7 @@ main(int argc, char** argv)
     // assign IP, PORT
     servaddr.sin_family = AF_INET;
     servaddr.sin_addr.s_addr = htonl(INADDR_ANY);
-    servaddr.sin_port = htons(PORT);
+    servaddr.sin_port = htons(port);
 
     // Binding newly created socket to given IP and verification
     if ((bind(s_fd, (struct sockaddr*)&servaddr, sizeof(servaddr))) != 0) {
@@ -71,8 +81,9 @@ main(int argc, char** argv)
             printf("Listen failed...\n");
             exit(0);
         }
-        else
+        else {
             printf("Server listening..\n");
+        }
 
         len = sizeof(cli);
         // Accept the data packet from client and verification

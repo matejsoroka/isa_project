@@ -1,5 +1,5 @@
 //
-// Created by matthew on 28.10.19.
+// Created by Matej Soroka on 28.10.19.
 //
 
 #include <iostream>
@@ -10,14 +10,10 @@
 
 Request::Request(const std::string& raw_request)
 {
-
     std::istringstream iss(raw_request);
     std::vector<std::string> results((std::istream_iterator<std::string>(iss)),
                                      std::istream_iterator<std::string>());
-
-    // TODO: if method not in list of methods
-    this->metod = results[0];
-    // TODO: if method not in list of urls
+    this->method = results[0];
     this->url = results[1];
     this->payload = raw_request.substr(raw_request.find("\r\n\r\n") + 4);
 }
