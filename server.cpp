@@ -22,7 +22,18 @@ func(int sockfd, Dashboard *dashboard)
     // print buffer which contains the client contents
 
     Request req(buff);
+
     Response res = Response();
+
+    if (req.method == "ERROR") {
+        res.payload = "Invalid request";
+        res.code = 404;
+        res.generate_response();
+        strcpy(buff, res.raw.c_str());
+        send(sockfd, buff, sizeof(buff), 0);
+        return;
+    }
+
     Handler h(&req, &res, dashboard);
 
     // and send that buffer to client
@@ -95,8 +106,6 @@ main(int argc, char** argv)
         else {
             printf("server acccept the client...\n");
         }
-
-        // Function for chatting between client and server
         func(c_fd, &dashboard);
     }
 

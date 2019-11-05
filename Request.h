@@ -18,6 +18,10 @@ public:
     std::string url;     // URL
     std::string method;  // HTTP method
     std::string payload; // HTTP payload
+    std::string host;    // host address
+    std::string raw;     // raw request
+    std::string generate_request();
+    int set_request(const std::string &host, const std::string &url, const std::string &method, const std::string &payload);
 };
 
 
