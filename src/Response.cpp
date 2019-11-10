@@ -16,7 +16,7 @@ Response::generate_response()
 
     if (this->code >= 400 && this->code <= 499) {
         code_msg = "Not Found";
-    } else if (this->code >= 200 && this->code <= 200) {
+    } else if (this->code >= 200 && this->code <= 299) {
         code_msg = "OK";
     } else {
         code_msg = "SERVER ERROR";
@@ -27,7 +27,7 @@ Response::generate_response()
         << "Server: Dashboard v0.1\n"
         << "Content-Type: text/plain\n"
         << "Content-Length: " << this->payload.length() << "\n"
-        << "Connection: close\n\n"
+        << "Connection: close\r\n\r\n"
         << this->payload;
 
     return ss.str();

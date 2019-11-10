@@ -1,6 +1,6 @@
 #include <netinet/in.h>
-#include <stdlib.h>
-#include <string.h>
+#include <cstdlib>
+#include <cstring>
 #include <sys/socket.h>
 #include <unistd.h>
 #include <iostream>
@@ -13,8 +13,10 @@
 int
 main(int argc, char** argv)
 {
-    double port = 0;
+    double port;
     std::string server_ip;
+
+    /* Arguments check */
 
     if (argc > 5 && !strcmp(argv[1], "-H") && !strcmp(argv[3], "-p")) {
         port = strtod(argv[4], nullptr);
@@ -28,11 +30,15 @@ main(int argc, char** argv)
         return 10;
     }
 
+    /* Initialize request object */
     Request req("");
 
-    if (argc == 6 && !strcmp(argv[5], "boards")) {
+    if (argc == 6 && !strcmp(argv[5], "boards")) { // If having six arguments
+
         req.set_request(server_ip, "/boards", "GET", "");
+
     } else if (argc == 8 && !strcmp(argv[5], "board")) {
+
         if (!strcmp(argv[6], "add")) {
             std::ostringstream url;
             url << "/boards/" << argv[7];
@@ -49,7 +55,9 @@ main(int argc, char** argv)
             std::cerr << "Invalid request" << std::endl;
             return 1;
         }
-    } else if (argc == 9 && !strcmp(argv[5], "item")) {
+
+    } else if (argc == 9 && !strcmp(argv[5], "item")) {  // If having nine arguments
+
         if (!strcmp(argv[6], "add")) {
             std::ostringstream url;
             url << "/board/" << argv[7];
@@ -66,42 +74,53 @@ main(int argc, char** argv)
             std::cerr << "Invalid request" << std::endl;
             return 1;
         }
-    } else {
+
+    } else { // Invalid count of arguments
         std::cerr << "Invalid request" << std::endl;
         return 1;
     }
 
+    // Create socket
     int sock = socket(AF_INET, SOCK_STREAM, 0);
     if (sock == -1) return -1;
 
-    sockaddr_in hint{};
+    sockaddr_in hint{};           // Initialize address structure
+    hint.sin_family = AF_INET;    // Set IP version
+    hint.sin_port = htons(port);  // Set port for service
+    struct hostent *servent;      // Initialize host server struct
 
-    hint.sin_family = AF_INET;
-    struct hostent *servent;
-
-    if ((servent = gethostbyname(argv[2])) == nullptr) // check the first parameter
+    /* DNS resolution */
+    if ((servent = gethostbyname(argv[2])) == nullptr)
         std::cout << "Get hostbyname error" << std::endl;
 
-    hint.sin_port = htons(port);
+    // Copy server address
     memcpy(&hint.sin_addr,servent->h_addr,servent->h_length);
 
+    // Establish connection between client and server
     int server_connect = connect(sock, (sockaddr *) &hint, sizeof(hint));
     if (server_connect == -1) {
         return 1;
     }
 
-    char buff[MAX];
-
+    // Send request to server
     int send_request = send(sock, req.raw.c_str(), req.raw.size() + 1, 0);
     if (send_request == -1) {
         std::cerr << "Error sending request";
         return 1;
     }
 
+    // Create request buffer and initialize it
+    char buff[MAX];
     memset(&buff, 0, MAX);
-    int received = recv(sock, buff, MAX, 0);
 
-    std::cout << buff << "\n";
+    // Receive response from server
+    recv(sock, buff, MAX, 0);
+
+    // Convert char array to string and strip headers
+    std::string payload = buff;
+
+    std::cerr << payload.substr(0, payload.find("\r\n\r\n")) << std::endl;  // Headers to stderr
+    std::cout << payload.substr(payload.find("\r\n\r\n") + 4) << std::endl; // Payload to stdout
 
     close(sock);
 

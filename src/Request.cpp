@@ -21,7 +21,8 @@ Request::Request(const std::string& raw_request) {
     }
 }
 
-int Request::set_request(const std::string& host, const std::string& url, const std::string& method, const std::string& payload)
+void
+Request::set_request(const std::string& host, const std::string& url, const std::string& method, const std::string& payload)
 {
     this->host = host;
     this->url = url;
@@ -41,7 +42,7 @@ Request::generate_request()
        << "User-Agent: ISA Client\n"
        << "Content-Type: text/plain\n"
        << "Content-Length: " << this->payload.length() << "\n"
-       << "Accept: */*\n\n"
+       << "Accept: */*\r\n\r\n"
        << this->payload;
 
     return ss.str();
