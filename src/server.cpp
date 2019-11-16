@@ -11,9 +11,15 @@
 #define MAX 8192
 
 void
+print_help()
+{
+    std::cout << "Run program with port as argument -p for example\n"
+                 "./isaserver -p 8080" << std::endl;
+}
+
+void
 handle_request(int socket, Dashboard *dashboard)
 {
-
     // Init buffer
     char buff[MAX];
     memset(&buff, 0, MAX);
@@ -49,10 +55,18 @@ int
 main(int argc, char** argv)
 {
     double port = 0;
-    if (argc == 3 && !strcmp(argv[1], "-p")) {
-        port = strtod(argv[2], nullptr);
-        if (port == 0) {
-            std::cerr << "Port is not a number" << std::endl;
+    if (argc == 3) {
+        if (!strcmp(argv[1], "-h")) {
+            print_help();
+            return 0;
+        } else if (!strcmp(argv[1], "-p")) {
+            port = strtod(argv[2], nullptr);
+            if (port == 0) {
+                std::cerr << "Port is not a number" << std::endl;
+                return 10;
+            }
+        } else {
+            std::cerr << "Unknown argument" << std::endl;
             return 10;
         }
     } else {
@@ -92,8 +106,7 @@ main(int argc, char** argv)
         if ((listen(s_fd, 5)) != 0) {
             std::cerr << "Unable to bind listen" << std::endl;
             return 1;
-        }
-        else {
+        } else {
             std::cout << "Server is listening on port: " << port << std::endl;
         }
 
@@ -103,7 +116,6 @@ main(int argc, char** argv)
         if (c_fd < 0) {
             std::cerr << "Unable to accept request" << std::endl;
         }
-
         handle_request(c_fd, &dashboard);
     }
 

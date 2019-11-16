@@ -10,24 +10,49 @@
 
 #define MAX 8192
 
+void
+print_help()
+{
+    std::cout << "Run with port as argument -p for port and -H for host, host can be IP "
+                 "address of server or hostname of server.\n\n"
+                 "./isaclient -H 127.0.0.1 -p 80 <command>\n"
+                 "where command can be from supported commands below.\n\n"
+                 "boards - Get list of boards\n"
+                 "board add <name> - Create new board\n"
+                 "board delete <name> - Delete board\n"
+                 "board list <name> - List board posts\n"
+                 "item add <name> <content> - Add post to board\n"
+                 "item delete <name> <id> - Delete board post by id\n"
+                 "item update <name> <id> <content> - Edit post by id" << std::endl;
+}
+
 int
 main(int argc, char** argv)
 {
-    double port;
+
+    int option;
+
     std::string server_ip;
+    double port;
 
-    /* Arguments check */
-
-    if (argc > 5 && !strcmp(argv[1], "-H") && !strcmp(argv[3], "-p")) {
-        port = strtod(argv[4], nullptr);
-        if (port == 0) {
-            std::cerr << "Port is not a number" << std::endl;
-            return 10;
+    while((option = getopt(argc, argv, "H:p:h")) != -1) {
+        switch (option){
+            case 'H':
+                server_ip = optarg;
+                break;
+            case 'p':
+                port = strtod(optarg, nullptr);
+                break;
+            case 'h':
+                print_help();
+                return 0;
+            case ':':
+                printf("option needs a value\n");
+                break;
+            case '?':
+                printf("unknown option: %c\n", optopt);
+                break;
         }
-        server_ip = argv[2];
-    } else {
-        std::cerr << "Please set up port or address correctly" << std::endl;
-        return 10;
     }
 
     /* Initialize request object */

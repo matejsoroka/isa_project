@@ -19,7 +19,7 @@ int Dashboard::create_board(Response *response, std::string board_name) {
     }
     this->boards.push_back( new Board(std::move(board_name)));   // insert board to vector of boards
     response->code = 201;
-    response->payload = "Board successfuly created";
+    response->payload = "Board successfully created";
     return 0;
 }
 
@@ -85,6 +85,11 @@ int Dashboard::edit_post(Response *response, const std::string& board_name, unsi
 
 int Dashboard::add_to_board(Response *response, const std::string& board_name, std::string message) {
     auto board = get_board(board_name);
+    if (message.length() == 0) {
+        response->code = 400;
+        response->payload = "Post cannot be empty";
+        return 1;
+    }
     if (board) {
         Post* post = new Post(std::move(message));
         board->posts.push_back(post); // adding new post to board
@@ -108,7 +113,7 @@ int Dashboard::delete_post(Response *response, const std::string& board_name, un
     if (board->posts.size() >= id) {
         board->posts.erase(board->posts.begin() + (id - 1));
         response->code = 200;
-        response->payload = "Post successfuly deleted";
+        response->payload = "Post successfully deleted";
         return 0;
     } else {
         response->code = 404;
@@ -122,7 +127,7 @@ int Dashboard::delete_board(Response *response, const std::string& board_name) {
     if (ix != -1) {
         this->boards.erase(this->boards.begin() + ix);
         response->code = 200;
-        response->payload = "Board successfuly deleted";
+        response->payload = "Board successfully deleted";
         return 0;
     } else {
         response->code = 404;
