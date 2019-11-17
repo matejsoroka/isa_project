@@ -52,25 +52,26 @@ handle_request(int socket, Dashboard *dashboard)
 }
 
 int
-main(int argc, char** argv)
-{
+main(int argc, char** argv) {
+
     double port = 0;
     if (argc == 3) {
-        if (!strcmp(argv[1], "-h")) {
-            print_help();
-            return 0;
-        } else if (!strcmp(argv[1], "-p")) {
+        if (!strcmp(argv[1], "-p")) {
             port = strtod(argv[2], nullptr);
             if (port == 0) {
                 std::cerr << "Port is not a number" << std::endl;
                 return 10;
-            }
+            } else{};
         } else {
             std::cerr << "Unknown argument" << std::endl;
             return 10;
         }
+    } else if (argc == 2 && !strcmp(argv[1], "-h")) {
+        print_help();
+        return 0;
     } else {
         std::cerr << "Please set up port correctly" << std::endl;
+        print_help();
         return 10;
     }
 

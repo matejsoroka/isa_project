@@ -3,7 +3,7 @@
 ## HTTP Dashboard
 
 ### How to build
-In build folder is Makefile for build a binary and generate docs, simply run `make all` and Makefile will build `isaclient` and `isaserver` binary and generate documentation in `docs` folder.
+In build folder is Makefile for build a binary and generate docs, simply run `make all` and Makefile will build `isaclient` and `isaserver` binary and generate documentation in `docs` folder (it is already generated in this zip).
 
 ### How to run
 

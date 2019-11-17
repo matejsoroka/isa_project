@@ -3,8 +3,7 @@
 \usepackage[left=1.5cm,text={18cm, 25cm},top=2.5cm]{geometry}
 \usepackage[IL2]{fontenc}
 \usepackage[utf8]{inputenc}
-\usepackage{svg, amsmath, amsthm, amssymb}
-\usepackage{times}
+\usepackage{svg, amsmath, amsthm, amssymb, times}
 
 \theoremstyle{definition}
 \newtheorem{definice}{Definice}
@@ -31,49 +30,76 @@
 \tableofcontents
 \newpage
 
-\section{Návrh aplikácie}
+\section{Preklad}
+V zložke build sa nachádza Makefile pre preklad programu.
+\begin{itemize}
+  \item make all - vygeneruje dokumentáciu do zložky \texttt{docs} a skompiluje \texttt{isaserver} a \texttt{isaclient}
+  \item make docs - vygeneruje dokumentáciu do zložky \texttt{docs}
+  \item make client - skompiluje \texttt{isaclient}
+  \item make server - skompiluje \texttt{isaserver}
+  \item make clean - prečistí nepotrebné súbory
+\end{itemize}
 
-\subsection{Client}
-Obsahuje spracovanie argumentov, ktoré reprezentujú IP adresu, port serveru a príslušný príkaz na obsluhu nástenky. Tvorí štart programu kde vytvorí spojenie medzi serverom, vytvorí objekt Request a zašle ho ako požiadavok na server v tvare HTTP requestu.
-
-\subsection{Server}
+\section{Server}
 Program, ktorý zachytáva požiadavky v cykle, takže kým sa požiadavka nevykoná, je príjmanie nových požiadaviek pozastavené, a čaká sa na vykonanie. Keďže vykonávanie operácie trvá okamih, nie je nutné tento problém riesiť do hĺbky. V prípade veľkého množstva požiadaviek je jedno z riešením použitie paralelizácie a samotné úpravy násteniek vykonávať paralelne, no tiaktiež je nutné zaistiť synchronizáciu procesov pri úprave tabuľky.  \\
 
 Server odchytí objekt Request v tvare HTTP requestu a pošle ho objektu Handler, ktorý podľa parametrov požiadavky vykoná operácie nad objektom Dashboard a vygeneruje odpoveď vo forme objektu Response podľa toho ako skončí daná operácia nad objektom Dashboard. \\
 
 Keďže na nástenke nepredpokladáme dlhé správy, tak limit pre dĺžku HTTP požiadavky je 8192 znakov, týmto limitom zabezpečíme či už rýchlosť vykonania požiadavky, tak aj šetrnosť pamäte.
 
-\subsection{Request}
+\subsection{Spustenie}
+Server akceptuje jeden povinný parameter, -p, ktorý určuje port na ktorom bude server očakávať spojenia. \texttt{./isaserver -p 5777}
+
+\section{Client}
+Obsahuje spracovanie argumentov, ktoré reprezentujú IP adresu, port serveru a príslušný príkaz na obsluhu nástenky. Tvorí štart programu kde vytvorí spojenie medzi serverom, vytvorí objekt Request a zašle ho ako požiadavok na server v tvare HTTP requestu.
+
+\subsection{Spustenie}
+\texttt{./isaclient -H <host> -p <port> <command>}
+
+\section{Request}
 Trieda pre ucelenie požiadavky na server, vytvára sa na strane klienta a zasiela sa server.
 
-\subsection{Response}
+\section{Response}
 Trieda pre ucelenie odpovede pre sieťového klienta, vytvára sa na strane serveru.
 
-\subsection{Handler}
+\section{Handler}
 Trieda obsahujúca spracovanie požiadavky a podľa nej určí, aká operácia sa má nad objektom Dashoard vykonať, samotný objekt Handler volá metódy objektu Dashboard s príslušnými parametrami.
 
-\subsection{Dashboard}
+\section{Dashboard}
 Trieda obsahuje samotnú logiku nástenky, ktorá obsahuje tabule a príspevky a vyhodnocuje danú požiadavku na základe ktorej nastavuje parametre odpovede pre klienta.
 
-\subsection{Post}
+\section{Post}
 Trieda slúži ako ucelenie príspevku na nástenke.
 
-% Perzistencia dat
+\section{Perzistencia dat}
+Dáta uložené na nástenke sú uložené v operačnej pamäti, takže sú uložené len po dobu života behu serveru. Možné rozšírenie by bolo použitie databázy alebo ukladania do súboru v predpísanej štruktúre (\texttt{JSON, XML, ...}) a pri spustení programu daný zdroj načítať
 
-% HTTP verzia
+\section{HTTP verzia}
+Pouzitá HTTP verzia je 1.1
 
-% Typ dat
+\section{Typ obsahu}
+Prenašaný obsah dát má MIME type \texttt{text/plain}
 
-% Format nazvu boardov
+\section{Formát nazvu tabuliek}
+Nazov tabuliek musí byť string obsahujúci alfanumerické znaky (\texttt{a-z A-Z 0-9})
 
-% Prikazy klienta
+\section{Prikazy klienta}
+Klient obsluhuje tabuľky pomocou príkazov:
+\begin{itemize}
+	\item Vylistovanie existujúcich tabuliek: \texttt{boards}
+	\item Pridanie tabľky: \texttt{board add $<$meno$>$}
+	\item Odstránenie tabľky: \texttt{board delete $<$meno$>$}
+	\item Vylistovanie príspevkov tabľky: \texttt{board list $<$meno$>$}
+	\item Pridanie príspevku do tabľky: \texttt{item add $<$meno\_tabulky$>$ $>$obsah$>$}
+	\item Odstránenie príspevku z tabľky: \texttt{item delete $<$meno\_tabulky$>$ $<$id\_prispevku$>$}
+	\item Úprava príspevku v tabľke: \texttt{item update $<$meno\_tabulky$>$ $<$id\_prispevku$>$ $<$obsah$>$}
+\end{itemize}
 
-% Navratove kody
+\section{Návratové kódy}
+\texttt{GET}, \texttt{PUT} a \texttt{DELETE} vracajú pri úspechu kód 200, \texttt{POST} 201. Pokiaľ žiadaná nástenka alebo príspevok neexistujú, vracia sa kód 404. Pokiaľ je snaha vytvoriť nástenku s názvom ktorý už existuje, vracia sa kód 409. Pokiaľ POST alebo PUT nad príspevkom majú \texttt{Content-Length = 0}, vracia sa kód 400. \\
+Na všetky iné akcie reaguje server odpoveďou 404. 
 
-% Rozdelenie hlaviciek a payloadu
-
-% Prispevky na viac riadkov
-
-% Mazanie podla id
+\section{Identifikátor zánamov}
+Pri vylistovaní tabuľky sa nám vytvoria aj identifikátory ktore unikátne reprezentujú daný záznam.
 
 \end{document}

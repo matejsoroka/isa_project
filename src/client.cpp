@@ -89,17 +89,22 @@ main(int argc, char** argv)
             req.set_request(server_ip, url.str(), "POST", argv[8]);
         } else if (!strcmp(argv[6], "delete")) {
             std::ostringstream url;
-            url << "/board/" << argv[7] << argv[8];
+            url << "/board/" << argv[7] << "/" << argv[8];
             req.set_request(server_ip, url.str(), "DELETE", "");
-        } else if (!strcmp(argv[6], "update")) {
-            std::ostringstream url;
-            url << "/board/" << argv[7];
-            req.set_request(server_ip, url.str(), "PUT", argv[8]);
         } else {
             std::cerr << "Invalid request" << std::endl;
             return 1;
         }
 
+    } else if (argc == 10 && !strcmp(argv[5], "item")) {
+        if (!strcmp(argv[6], "update")) {
+            std::ostringstream url;
+            url << "/board/" << argv[7] << "/" << argv[8];
+            req.set_request(server_ip, url.str(), "PUT", argv[9]);
+        } else {
+            std::cerr << "Invalid request" << std::endl;
+            return 1;
+        }
     } else { // Invalid count of arguments
         std::cerr << "Invalid request" << std::endl;
         return 1;

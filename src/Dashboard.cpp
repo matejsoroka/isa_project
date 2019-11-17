@@ -52,7 +52,7 @@ int Dashboard::get_boards(Response *response) {
     if (!this->boards.empty()) {
         std::stringstream ss;
         for (const auto& board : this->boards) {
-            ss << board->board_name << "\n";
+            ss << board->board_name << std::endl;
         }
         response->code = 200;
         response->payload = ss.str();
